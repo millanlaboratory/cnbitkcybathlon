@@ -1,0 +1,191 @@
+#!/bin/bash
+
+GTKDIALOG=gtkdialog
+EXECBASH="exec $SHELL -c"
+SAVEDIR='/tmp/cnbitk-'$USER'/'
+export SAVEDIR
+
+FILEPATH=$SAVEDIR$(date +"%Y%m%d").dynamic_parameters.txt
+export FILEPATH
+
+WIN_W=230
+export WIN_W
+
+IMGPATH="$CNBITKSHARE_ROOT/cnbicybathlon/cnbi-logo.png"
+export IMGPATH
+
+let "IMG_W = $WIN_W - 40"
+export IMG_W
+
+#### DEFAULT VALUES
+artifact_rangemin=0
+artifact_rangemax=1000
+artifact_rangestep=10
+artifact_initial=300
+
+smr_rangemin=0.50
+smr_rangemax=1.00
+smr_rangestep=0.01
+smr_initial=0.7
+
+smr_label=mi
+smr_label_left=mi_left_hands
+smr_label_right=mi_right_hand
+smr_label_feet=mi_both_feet
+smr_label_hands=mi_both_hands
+
+artifact_label=artifact
+artifact_label_eog=artifact_eog
+#artifact_label_emg=artifact_emg
+
+export smr_label
+export smr_label_left
+export smr_label_right
+export smr_label_feet
+export smr_label_hands
+export artifact_label
+export artifact_label_eog
+#export artifact_label_emg
+
+###### FUNCTIONS
+
+funcHScale() {
+# $1 - Variable name; $2 - Range Min; $3 - Range Max; $4 - Range Step; $5 -Default value; $6 - Title
+
+	echo '	
+		<text>
+			<label>'$6'</label>
+		</text>
+		<hscale range-min="'$2'" range-max="'$3'" range-step="'$4'"
+		tooltip-text="Threshold value" auto-refresh="true">
+			<default>'$5'</default>
+			<variable>'$1'</variable>
+			<action signal="value-changed">disable:'$1'_stored</action>
+		</hscale>'
+}
+
+funcBtn() {
+# $1 - Entry value; $@- all other arguments starting from the function followed
+# by its arguments
+	value=$1
+	shift
+
+	echo '<button>
+			<input file stock="gtk-yes"></input>
+			<action>'$EXECBASH' "'$@' $'$value' "</action>
+			<action signal="button-press-event">enable:'$value'_stored</action>
+		</button>'
+}
+
+funcSpinEntry() {
+# $1 - Variable name; $2 - Range Min; $3 - Range Max; $4 - Range Step; $5 -Default value; $6 - Title
+	echo '
+		<text>
+			<label>'$6'</label>
+		</text>
+		<spinbutton digits="2" range-min="'$2'"
+		range-max="'$3'" range-step="'$4'"
+		range-value="'$5'"
+		tooltip-text="'$6' value">
+		<sensitive>true</sensitive>
+		<variable>'$1'</variable>
+		<action signal="changed">disable:'$1'_stored</action>
+		</spinbutton>'
+}
+
+funcStatusText() {
+	echo '
+		<text>
+			<sensitive>false</sensitive>
+			<variable>'$1'_stored</variable>
+			<label>Stored</label>
+		</text>'
+}
+
+funcWrite() {
+# $1- Type; $2- Task name; $3- Threshold value
+	newline="[$(date +"%Y%m%d%H%M%S")] type|$1|task|$2|threshold|$3"	
+	echo $newline >> $FILEPATH
+
+	echo "[cnbi_mi_dialog] >> '$newline'"
+}
+export -f funcWrite
+
+if [ ! -d "$SAVEDIR" ]; then
+	mkdir $SAVEDIR
+	echo "[cnbi_mi_dialog] Create new folder: $SAVEDIR"
+fi
+
+echo "[cnbi_mi_dialog] Filepath: $FILEPATH"
+
+
+MAIN_DIALOG='
+<window title="CNBI cybathlon dialog" resizable="false" width_request="'$WIN_W'" icon-name="gtk-about">
+	<vbox>
+		<hbox homogeneous="true">
+			<pixmap>
+			<input file>'"$IMGPATH"'</input>
+			<width>"'$IMG_W'"</width>
+			</pixmap>
+		</hbox>
+		<hbox homogeneous="true">
+			<vbox>
+				<frame SMR-BCI>
+					
+					<hbox homogeneous="true">
+						<text>
+							<label>Task Thresholds</label>
+						</text>
+					</hbox>
+
+					<hbox>
+						'`funcSpinEntry smr_value_rh $smr_rangemin $smr_rangemax $smr_rangestep $smr_initial RightHand`'
+						'`funcBtn smr_value_rh funcWrite $smr_label $smr_label_right`'
+						'`funcStatusText smr_value_rh`'
+					</hbox>
+				
+					<hbox>
+						'`funcSpinEntry smr_value_lh $smr_rangemin $smr_rangemax $smr_rangestep $smr_initial LeftHand`'
+						'`funcBtn smr_value_lh funcWrite $smr_label $smr_label_left`'
+						'`funcStatusText smr_value_lh`'
+					</hbox>
+					
+					<hbox>
+						'`funcSpinEntry smr_value_bh $smr_rangemin $smr_rangemax $smr_rangestep $smr_initial BothHands`'
+						'`funcBtn smr_value_bh funcWrite $smr_label $smr_label_hands`'
+						'`funcStatusText smr_value_bh`'
+					</hbox>
+					
+					<hbox>
+						'`funcSpinEntry smr_value_bf $smr_rangemin $smr_rangemax $smr_rangestep $smr_initial BothFeet`'
+						'`funcBtn smr_value_bf funcWrite $smr_label $smr_label_feet`'
+						'`funcStatusText smr_value_bf`'
+					</hbox>
+				</frame>
+
+				<frame Artifacts>
+					<vbox>
+						'`funcHScale artifact_value_eog $artifact_rangemin $artifact_rangemax $artifact_rangestep $artifact_initial EOG`'
+						'`funcBtn artifact_value_eog funcWrite $artifact_label $artifact_label_eog`'
+						'`funcStatusText artifact_value_eog`'
+					</vbox>
+				</frame>
+			</vbox>
+		</hbox>
+		<hbox homogeneous="true">
+			<button>
+				<label>Close</label>
+				<action>EXIT:OK</action>
+			</button>
+		</hbox>
+	</vbox>
+</window>
+'
+
+export MAIN_DIALOG
+
+case $1 in
+	-d | --dump) echo "$MAIN_DIALOG" ;;
+	*) $GTKDIALOG --program=MAIN_DIALOG ;;
+esac
+
