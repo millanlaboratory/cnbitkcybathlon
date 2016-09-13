@@ -95,10 +95,8 @@ while true; do
 	sleep 2
 	# Launch also the EOG processing
 	echo "Starting EOG artifact detection process"
-	EOGPID=$(cl_rpc fork)
-	# Have tp hardcode this as there is no way to retrieve it from XML or nameserver...reinstating the artifact taskset would solve this. Discuss with Luca
-	cl_rpc directory $EOGPID $CNBITKSHARE_ROOT/cnbicybathlon/cnbitkmat/matndf/
-	cl_rpc exec $EOGPID ndf_cybathlon_eog	
+	cl_init -x $XML -lN -B artifact -T artifact_onoff
+	EOGPID=$(cl_init -x $XML -scN -B artifact -T artifact_onoff)
 
 	sleep 2
 
@@ -122,7 +120,7 @@ while true; do
 	
 	# Launch dynamic parameter GUI
 	echo "Starting dynamic parameter GUI"
-	gnome-terminal -e "cnbi_cybathlon_dialog" --title "Dynamic GUI"
+	gnome-terminal -e "cybathlon_gui" --title "Dynamic GUI"
 	
 	# Keep reading user input here until Q is pressed
 	while :
