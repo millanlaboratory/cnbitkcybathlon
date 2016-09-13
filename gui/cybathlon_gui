@@ -8,11 +8,13 @@ export SAVEDIR
 FILEPATH=$SAVEDIR$(date +"%Y%m%d").dynamic_parameters.txt
 export FILEPATH
 
+WIN_TITLE="CNBI Cybathlon"
 WIN_W=230
 export WIN_W
+export WIN_TITLE
 
-IMGPATH="$CNBITKSHARE_ROOT/cnbicybathlon/cnbi-logo.png"
-export IMGPATH
+LOGOPATH="$HOME/.cnbitk/cnbicybathlon/gui/cnbi_logo.png"
+export LOGOPATH
 
 let "IMG_W = $WIN_W - 40"
 export IMG_W
@@ -107,24 +109,24 @@ funcWrite() {
 	newline="[$(date +"%Y%m%d%H%M%S")] type|$1|task|$2|threshold|$3"	
 	echo $newline >> $FILEPATH
 
-	echo "[cnbi_mi_dialog] >> '$newline'"
+	echo "[cybathlon_gui] >> '$newline'"
 }
 export -f funcWrite
 
 if [ ! -d "$SAVEDIR" ]; then
 	mkdir $SAVEDIR
-	echo "[cnbi_mi_dialog] Create new folder: $SAVEDIR"
+	echo "[cybathlon_gui] Create new folder: $SAVEDIR"
 fi
 
-echo "[cnbi_mi_dialog] Filepath: $FILEPATH"
+echo "[cybathlon_gui] Filepath: $FILEPATH"
 
 
 MAIN_DIALOG='
-<window title="CNBI cybathlon dialog" resizable="false" width_request="'$WIN_W'" icon-name="gtk-about">
+<window title="'$WIN_TITLE'" resizable="false" width_request="'$WIN_W'" icon-name="gtk-about">
 	<vbox>
 		<hbox homogeneous="true">
 			<pixmap>
-			<input file>'"$IMGPATH"'</input>
+			<input file>'"$LOGOPATH"'</input>
 			<width>"'$IMG_W'"</width>
 			</pixmap>
 		</hbox>

@@ -1,6 +1,7 @@
 ACLOCAL_AMFLAGS=-I m4
 SUBDIRS = 	src/ \
-		extra/
+		extra/ \
+		gui/
 		  
 REMOVE_DISTDIR = \
    { test ! -d "$(distdir)" \

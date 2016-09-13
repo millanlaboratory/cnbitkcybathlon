@@ -109,7 +109,7 @@
 				<id>/bus</id>
 				<ic>/ctrl1</ic>
 				<directory></directory>
-				<include>$HOME/.cnbitk/cnbicybathlon/matndf/</include>
+				<include>$HOME/.cnbitk/cnbicybathlon/ndf/</include>
 			</ndf>
 		</mi>
 		<artifact description="Standard Artifact classifier (pipeline 2)">
@@ -124,7 +124,7 @@
 				<id>/bus</id>
 				<ic>/ctrl2</ic>
 				<directory></directory>
-				<include>$HOME/.cnbitk/cnbicybathlon/matndf/</include>
+				<include>$HOME/.cnbitk/cnbicybathlon/ndf/</include>
 			</ndf>
 		</artifact>
 	</classifiers>
