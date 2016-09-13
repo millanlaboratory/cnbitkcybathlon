@@ -108,8 +108,8 @@
 				<pipe>/pipe1</pipe>
 				<id>/bus</id>
 				<ic>/ctrl1</ic>
-				<directory>$CNBITKSHARE_ROOT/cnbicybathlon/cnbitkmat/matndf/</directory>
-				<include></include>
+				<directory></directory>
+				<include>$HOME/.cnbitk/cnbicybathlon/matndf/</include>
 			</ndf>
 		</mi>
 		<artifact description="Standard Artifact classifier (pipeline 2)">
@@ -123,8 +123,8 @@
 				<pipe>/pipe2</pipe>
 				<id>/bus</id>
 				<ic>/ctrl2</ic>
-				<directory>$CNBITKSHARE_ROOT/cnbicybathlon/cnbitkmat/matndf/</directory>
-				<include></include>
+				<directory></directory>
+				<include>$HOME/.cnbitk/cnbicybathlon/matndf/</include>
 			</ndf>
 		</artifact>
 	</classifiers>
