@@ -52,9 +52,9 @@ eog_threshold_rangestep=10.0
 eog_threshold_initial=300.0
 eog_timeout_label=timeout
 eog_timeout_rangemin=0.0
-eog_timeout_rangemax=5.00
-eog_timeout_rangestep=0.5
-eog_timeout_initial=0.5
+eog_timeout_rangemax=5000.0
+eog_timeout_rangestep=500.0
+eog_timeout_initial=500.0
 
 export artifact_label
 export artifact_label_eog
