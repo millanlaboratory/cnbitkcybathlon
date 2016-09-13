@@ -26,23 +26,10 @@ save_LIBS="$LIBS"
 
 AC_CHECK_HEADERS([lpttrigger.h], [], 
 				 AC_MSG_ERROR([The lpttrigger headers must be installed.]), [])
-AC_CHECK_HEADERS([SDL/SDL.h], [], 
-				 AC_MSG_ERROR([The libSDL headers must be installed.]), [])
-AC_CHECK_HEADERS([SDL/SDL_mixer.h], [], 
-				 AC_MSG_ERROR([The libSDL_mixer headers must be installed.]), [])
-
 AC_SEARCH_LIBS([OpenLPTTrigger], [lpttrigger], [], 
 			   AC_MSG_ERROR([The lpttrigger library must be installed.]))
-AC_SEARCH_LIBS([SDL_Init], [SDL], [], 
-			   AC_MSG_ERROR([The libSDL library must be installed.]))
-AC_SEARCH_LIBS([Mix_OpenAudio], [SDL_mixer], [], 
-			   AC_MSG_ERROR([The libSDL_mixer library must be installed.]))
-AC_SEARCH_LIBS([dtk_create_window], [drawtk], [], 
-			   AC_MSG_ERROR([The drawtk library must be installed.]))
 AC_SEARCH_LIBS_CLASS([TCBlock], [tobicore], [#include <tobicore/TCBlock.hpp>], ,
 			AC_MSG_ERROR([The tobicore library cannot be found.]))
-AC_SEARCH_LIBS_CLASS([ICMessage], [tobiic], [#include <tobiic/ICMessage.hpp>], , 
-			AC_MSG_ERROR([The tobiic library cannot be found.]))
 AC_SEARCH_LIBS_CLASS([IDMessage], [tobiid], [#include <tobiid/IDMessage.hpp>], ,
 			AC_MSG_ERROR([The tobiid library cannot be found.]))
 AC_SEARCH_LIBS_CLASS([CcFile], [cnbicore], [#include <cnbicore/CcFile.hpp>], ,
@@ -52,6 +39,23 @@ AC_SEARCH_LIBS_CLASS([ClClient], [cnbiloop], [#include <cnbiloop/ClClient.hpp>],
 AC_SEARCH_LIBS_CLASS([CCfgConfig], [cnbiconfig], [#include <cnbiconfig/CCfgConfig.hpp>], ,
 			AC_MSG_ERROR([The cnbiconfig library cannot be found.]))
 
+################################################################################
+# Created by L.Tonin  <luca.tonin@epfl.ch> on 13/09/16 13:35:04
+# To be removed when deprecated protocols are deleted (see src/Makefile.am)
+AC_CHECK_HEADERS([SDL/SDL.h], [], 
+				 AC_MSG_ERROR([The libSDL headers must be installed.]), [])
+AC_CHECK_HEADERS([SDL/SDL_mixer.h], [], 
+				 AC_MSG_ERROR([The libSDL_mixer headers must be installed.]), [])
+AC_SEARCH_LIBS([SDL_Init], [SDL], [], 
+			   AC_MSG_ERROR([The libSDL library must be installed.]))
+AC_SEARCH_LIBS([Mix_OpenAudio], [SDL_mixer], [], 
+			   AC_MSG_ERROR([The libSDL_mixer library must be installed.]))
+AC_SEARCH_LIBS([dtk_create_window], [drawtk], [], 
+			   AC_MSG_ERROR([The drawtk library must be installed.]))
+AC_SEARCH_LIBS_CLASS([ICMessage], [tobiic], [#include <tobiic/ICMessage.hpp>], , 
+			AC_MSG_ERROR([The tobiic library cannot be found.]))
+################################################################################
+
 LIBS="$save_LIBS"
 
 AC_CHECK_PROG([DOXYGEN], [doxygen], [doxygen] [no])
@@ -60,8 +64,6 @@ if test "$DOXYGEN" = no ; then
 fi
 
 AC_HEADER_STDBOOL
-
-#AX_DEFINE_DIR([SYSCONFDIR], [sysconfdir], [System configuration path])
 
 AC_SUBST([RELEASE],[lib_release])
 AC_SUBST([CURRENT],[lib_current])
