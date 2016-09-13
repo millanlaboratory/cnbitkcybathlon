@@ -11,7 +11,7 @@ noinst_PROGRAMS = mi_cybathlon \
 
 mi_cybathlon_controller_SOURCES = mi_cybathlon_controller.cpp mi_cybathlon_utilities.hpp
 mi_cybathlon_controller_LDADD = -lcnbicore -lcnbiloop -ltobicore -ltobiid \
-				-llpttrigger -lcnbiconfig
+				-lcnbiprotocol -llpttrigger -lcnbiconfig
 
 
 # Created by L.Tonin  <luca.tonin@epfl.ch> on 13/09/16 13:32:37

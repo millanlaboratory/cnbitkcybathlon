@@ -17,6 +17,8 @@
 #include <cnbiloop/ClTobiId.hpp>
 #include <cnbiconfig/CCfgConfig.hpp>
 
+#include <cnbiprotocol/cp_utilities.hpp>
+
 #include <cnbiprotocols/artifact_utilities.hpp>
 #include "mi_cybathlon_utilities.hpp"
 
@@ -266,21 +268,20 @@ int main (int argc, char** argv) {
 
 			// Artifact detection
 			if (event == artcfg.on.gdfevent) {
-				CcLogInfoS("Artifact detection: on (event|"<<artcfg.on.gdfevent<<")"); 
-				CcLogInfoS("Commands disabled for "<<artcfg.on.timeout<<" ms");
+				CcLogInfoS("Artifact detection (event|"<<artcfg.on.gdfevent<<") | Command disabled ("<<artcfg.on.timeout<<" ms)"); 
 				artifact = true;
 				CcTime::Tic(&arttic);
 			} 
 		
-			arttime = CcTime::Toc(&arttic);
-
-			if(artifact == true && arttime >= artcfg.on.timeout) {
-				CcLogInfoS("Artifact detection timeout: Commands enabled"); 
-				artifact = false;
-				idm.SetEvent(artcfg.off.gdfevent);
-				id.SetMessage(&ids);
-
-			}
+		}
+		
+		// Check for artifact timeout
+		arttime = CcTime::Toc(&arttic);
+		if(artifact == true && arttime >= artcfg.on.timeout) {
+			CcLogInfoS("Artifact detection timeout: Commands enabled"); 
+			artifact = false;
+			idm.SetEvent(artcfg.off.gdfevent);
+			id.SetMessage(&ids);
 		}
 	
 		// Sending command procedures
@@ -298,6 +299,12 @@ int main (int argc, char** argv) {
 		
 			// Command has been sent. Switch command flag to false
 			cmdflg  = false;
+		}
+
+		// Update artifact timeout parameter
+		if(cp_parameter_update("artifact", "artifact_eog", "timeout", &artcfg.on.timeout)) {
+			CcLogConfigS("Timeout changed to "<<
+				     artcfg.on.timeout<<" for artifact|artifact_eog");
 		}
 
 
