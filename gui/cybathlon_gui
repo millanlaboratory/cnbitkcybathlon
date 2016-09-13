@@ -19,46 +19,66 @@ export LOGOPATH
 let "IMG_W = $WIN_W - 40"
 export IMG_W
 
-#### DEFAULT VALUES
-artifact_rangemin=0
-artifact_rangemax=1000
-artifact_rangestep=10
-artifact_initial=300
-
-smr_rangemin=0.50
-smr_rangemax=1.00
-smr_rangestep=0.01
-smr_initial=0.7
-
+# Initialize SMR variables
 smr_label=mi
 smr_label_left=mi_left_hands
 smr_label_right=mi_right_hand
 smr_label_feet=mi_both_feet
 smr_label_hands=mi_both_hands
-
-artifact_label=artifact
-artifact_label_eog=artifact_eog
-#artifact_label_emg=artifact_emg
+smr_threshold_label=threshold
+smr_threshold_rangemin=0.50
+smr_threshold_rangemax=1.00
+smr_threshold_rangestep=0.01
+smr_threshold_initial=0.7
 
 export smr_label
 export smr_label_left
 export smr_label_right
 export smr_label_feet
 export smr_label_hands
+export smr_threshold_label
+export smr_threshold_rangemin
+export smr_threshold_rangemax
+export smr_threshold_rangestep
+export smr_threshold_initial
+
+# Initialize EOG artifact variables
+artifact_label=artifact
+artifact_label_eog=artifact_eog
+eog_threshold_label=threshold
+eog_threshold_rangemin=0.0
+eog_threshold_rangemax=1000.0
+eog_threshold_rangestep=10.0
+eog_threshold_initial=300.0
+eog_timeout_label=timeout
+eog_timeout_rangemin=0.0
+eog_timeout_rangemax=5.00
+eog_timeout_rangestep=0.5
+eog_timeout_initial=0.5
+
 export artifact_label
 export artifact_label_eog
-#export artifact_label_emg
+export eog_threshold_label
+export eog_threshold_rangemin
+export eog_threshold_rangemax
+export eog_threshold_rangestep
+export eog_threshold_initial
+export eog_timeout_label
+export eog_timeout_rangemin
+export eog_timeout_rangemax
+export eog_timeout_rangestep
+export eog_timeout_initial
 
 ###### FUNCTIONS
 
 funcHScale() {
 # $1 - Variable name; $2 - Range Min; $3 - Range Max; $4 - Range Step; $5 -Default value; $6 - Title
 
-	echo '	
-		<text>
+	echo '
+		<text space-expand="false" space-fill="false">
 			<label>'$6'</label>
 		</text>
-		<hscale range-min="'$2'" range-max="'$3'" range-step="'$4'"
+		<hscale space-expand="true" space-fill="true" range-min="'$2'" range-max="'$3'" range-step="'$4'"
 		tooltip-text="Threshold value" auto-refresh="true">
 			<default>'$5'</default>
 			<variable>'$1'</variable>
@@ -105,8 +125,8 @@ funcStatusText() {
 }
 
 funcWrite() {
-# $1- Type; $2- Task name; $3- Threshold value
-	newline="[$(date +"%Y%m%d%H%M%S")] type|$1|task|$2|threshold|$3"	
+# $1- Type; $2- Task name; $3- Field name; $4- Threshold value
+	newline="[$(date +"%Y%m%d%H%M%S")] type|$1|task|$2|$3|$4"	
 	echo $newline >> $FILEPATH
 
 	echo "[cybathlon_gui] >> '$newline'"
@@ -141,36 +161,41 @@ MAIN_DIALOG='
 					</hbox>
 
 					<hbox>
-						'`funcSpinEntry smr_value_rh $smr_rangemin $smr_rangemax $smr_rangestep $smr_initial RightHand`'
-						'`funcBtn smr_value_rh funcWrite $smr_label $smr_label_right`'
-						'`funcStatusText smr_value_rh`'
+						'`funcSpinEntry smr_threshold_value_rh $smr_threshold_rangemin $smr_threshold_rangemax $smr_threshold_rangestep $smr_threshold_initial RightHand`'
+						'`funcBtn smr_threshold_value_rh funcWrite $smr_label $smr_label_right $smr_threshold_label`'
+						'`funcStatusText smr_threshold_value_rh`'
 					</hbox>
 				
 					<hbox>
-						'`funcSpinEntry smr_value_lh $smr_rangemin $smr_rangemax $smr_rangestep $smr_initial LeftHand`'
-						'`funcBtn smr_value_lh funcWrite $smr_label $smr_label_left`'
-						'`funcStatusText smr_value_lh`'
+						'`funcSpinEntry smr_threshold_value_lh $smr_threshold_rangemin $smr_threshold_rangemax $smr_threshold_rangestep $smr_threshold_initial LeftHand`'
+						'`funcBtn smr_threshold_value_lh funcWrite $smr_label $smr_label_left $smr_threshold_label`'
+						'`funcStatusText smr_threshold_value_lh`'
 					</hbox>
 					
 					<hbox>
-						'`funcSpinEntry smr_value_bh $smr_rangemin $smr_rangemax $smr_rangestep $smr_initial BothHands`'
-						'`funcBtn smr_value_bh funcWrite $smr_label $smr_label_hands`'
-						'`funcStatusText smr_value_bh`'
+						'`funcSpinEntry smr_threshold_value_bh $smr_threshold_rangemin $smr_threshold_rangemax $smr_threshold_rangestep $smr_threshold_initial BothHands`'
+						'`funcBtn smr_threshold_value_bh funcWrite $smr_label $smr_label_hands $smr_threshold_label`'
+						'`funcStatusText smr_threshold_value_bh`'
 					</hbox>
 					
 					<hbox>
-						'`funcSpinEntry smr_value_bf $smr_rangemin $smr_rangemax $smr_rangestep $smr_initial BothFeet`'
-						'`funcBtn smr_value_bf funcWrite $smr_label $smr_label_feet`'
-						'`funcStatusText smr_value_bf`'
+						'`funcSpinEntry smr_threshold_value_bf $smr_threshold_rangemin $smr_threshold_rangemax $smr_threshold_rangestep $smr_threshold_initial BothFeet`'
+						'`funcBtn smr_threshold_value_bf funcWrite $smr_label $smr_label_feet $smr_threshold_label`'
+						'`funcStatusText smr_threshold_value_bf`'
 					</hbox>
 				</frame>
 
-				<frame Artifacts>
-					<vbox>
-						'`funcHScale artifact_value_eog $artifact_rangemin $artifact_rangemax $artifact_rangestep $artifact_initial EOG`'
-						'`funcBtn artifact_value_eog funcWrite $artifact_label $artifact_label_eog`'
-						'`funcStatusText artifact_value_eog`'
-					</vbox>
+				<frame EOG-Artifacts>
+					<hbox>
+						'`funcHScale eog_threshold_value $eog_threshold_rangemin $eog_threshold_rangemax $eog_threshold_rangestep $eog_threshold_initial Threshold`'
+						'`funcBtn eog_threshold_value funcWrite $artifact_label $artifact_label_eog $eog_threshold_label`'
+						'`funcStatusText eog_threshold_value`'
+					</hbox>
+					<hbox>
+						'`funcSpinEntry eog_timeout_value $eog_timeout_rangemin $eog_timeout_rangemax $eog_timeout_rangestep $eog_timeout_initial Timeout`'
+						'`funcBtn eog_timeout_value funcWrite $artifact_label $artifact_label_eog $eog_timeout_label`'
+						'`funcStatusText eog_timeout_value`'
+					</hbox>
 				</frame>
 			</vbox>
 		</hbox>
