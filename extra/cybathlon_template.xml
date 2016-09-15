@@ -65,7 +65,7 @@
 		<mi description="Online MI" protocol="mi_control">
 			<taskset ttype="mi_bhbf" ctype="mi" classifier="kmi0">
 				<threshold>
-					<mi_both_hands>0.6</mi_both_hands>
+					<mi_both_hands>0.7</mi_both_hands>
 					<mi_both_feet>0.7</mi_both_feet>
 				</threshold>
 			</taskset>
@@ -108,7 +108,7 @@
 				<pipe>/pipe1</pipe>
 				<id>/bus</id>
 				<ic>/ctrl1</ic>
-				<directory></directory>
+				<directory>./</directory>
 				<include>$HOME/.cnbitk/cnbicybathlon/ndf/</include>
 			</ndf>
 		</mi>
@@ -123,7 +123,7 @@
 				<pipe>/pipe2</pipe>
 				<id>/bus</id>
 				<ic>/ctrl2</ic>
-				<directory></directory>
+				<directory>./</directory>
 				<include>$HOME/.cnbitk/cnbicybathlon/ndf/</include>
 			</ndf>
 		</artifact>
