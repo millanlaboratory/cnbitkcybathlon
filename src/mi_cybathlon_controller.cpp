@@ -280,6 +280,7 @@ int main (int argc, char** argv) {
 		if(artifact == true && arttime >= artcfg.on.timeout) {
 			CcLogInfoS("Artifact detection timeout: Commands enabled"); 
 			artifact = false;
+			cmdflg = false;
 			idm.SetEvent(artcfg.off.gdfevent);
 			id.SetMessage(&ids);
 		}
