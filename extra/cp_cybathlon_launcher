@@ -11,7 +11,8 @@ DEFAULT_XML="$HOME/Desktop/cybathlon.xml"
 FEEDBACK_EXECUTABLE="mi_control"
 CONTROLLER_EXECUTABLE="mi_cybathlon_controller"
 GUI_EXECUTABLE="cybathlon_gui"
-: ${CNBITKDATA_ROOT:=$(pwd)}
+# Not workin to be checked
+#: ${CNBITKDATA_ROOT:=$(pwd)}
 
 # Make trap for graceful exits
 trap 'my_exit; exit' SIGINT SIGTERM SIGQUIT SIGHUP
@@ -93,8 +94,8 @@ while true; do
 
 	echo "[$NAME] - Opening GDF and log files"
 	# Open GDF and log files
-	GDFBASENAME=$CNBITKDATA_ROOT"/"$(ccfg_cli -x $bcixml -N -B $miblock -T $mitask -a)".gdf"
-	LOGBASENAME=$CNBITKDATA_ROOT"/"$(ccfg_cli -x $bcixml -N -B $miblock -T $mitask -o)".log"
+	GDFBASENAME=$(ccfg_cli -x $bcixml -N -B $miblock -T $mitask -a)".gdf"
+	LOGBASENAME=$(ccfg_cli -x $bcixml -N -B $miblock -T $mitask -o)".log"
 	cl_rpc openxdf $GDFBASENAME $LOGBASENAME "cybathlon"
 
 	sleep 2
