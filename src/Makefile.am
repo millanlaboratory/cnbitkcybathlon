@@ -2,8 +2,6 @@ AM_CXXFLAGS = $(CXXFLAGS) -I$(top_srcdir)/src -std=c++0x
 
 bin_PROGRAMS = mi_cybathlon_controller
 
-bin_SCRIPTS = cp_cybathlon_launcher
-
 noinst_PROGRAMS = mi_cybathlon \
 	       	  mi_cybathlon2 \
 	       	  mi_cybathlon3 \

@@ -1,0 +1,295 @@
+#!/bin/bash
+
+NAME="cp_cybathlon_launcher"
+
+DEFAULT_MI_BLOCK="mi"
+DEFAULT_MI_TASK="mi_bhbf"
+DEFAULT_ARTIFACT_BLOCK="artifact"
+DEFAULT_ARTIFACT_TASK="artifact_onoff"
+DEFAULT_XML="$HOME/Desktop/cybathlon.xml"
+
+FEEDBACK_EXECUTABLE="mi_control"
+CONTROLLER_EXECUTABLE="mi_cybathlon_controller"
+GUI_EXECUTABLE="cybathlon_gui"
+: ${CNBITKDATA_ROOT:=$(pwd)}
+
+# Make trap for graceful exits
+trap 'my_exit; exit' SIGINT SIGTERM SIGQUIT SIGHUP
+
+
+# Make trap for graceful exits
+trap 'my_exit; exit' SIGINT SIGTERM SIGQUIT SIGHUP
+
+my_exit()
+{
+    cl_rpc closexdf	
+    wmctrl -c "Dynamic GUI"
+    wmctrl -c "Feedback"
+    wmctrl -c "Controller"
+}
+
+
+miblock=$DEFAULT_MI_BLOCK
+mitask=$DEFAULT_MI_TASK
+artifactblock=$DEFAULT_ARTIFACT_BLOCK
+artifacttask=$DEFAULT_ARTIFACT_TASK
+bcixml=$DEFAULT_XML
+
+
+# Getting optional arguments
+while getopts ":t:b:x:" opt; do
+	case $opt in
+		t)
+			#echo "-t was triggered, Parameter: $OPTARG!">&2
+			mitask=$OPTARG
+
+			;;
+		b)
+			#echo "-b was triggered, Parameter: $OPTARG!">&2
+			miblock=$OPTARG
+			;;
+		x)
+			#echo "-x was triggered, Parameter: $OPTARG!">&2
+			bcixml=$OPTARG
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" >&2
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument.">&2
+			exit 1
+			;;
+	esac
+done
+
+echo "[$NAME] - BCI xml:  $bcixml"
+echo "[$NAME] - MI block: $miblock"
+echo "[$NAME] - MI task:  $mitask"
+echo "[$NAME] - ARTIFACT block: $artifactblock"
+echo "[$NAME] - ARTIFACT task:  $artifacttask"
+
+while true; do
+
+	#Kill existing loop instances and close their terminal windows
+        wmctrl -c "Dynamic GUI"
+        wmctrl -c "Controller"
+        wmctrl -c "Feedback"
+
+	sleep 2
+
+	# Upload all parameters to nameserver and start BCI processing
+	echo "[$NAME] - Uploading XML parameters to nameserver"
+	cl_init -x $bcixml -lN -B $miblock -T $mitask
+	echo "[$NAME] - Starting BCI process"
+	BCIPID=$(cl_init -x $bcixml -scN -B $miblock -T $mitask)
+	
+	sleep 2
+	# Launch also the artifact processing
+	echo "[$NAME] - Starting EOG artifact detection process"
+	cl_init -x $bcixml -lN -B $artifactblock -T $artifacttask
+	EOGPID=$(cl_init -x $bcixml -scN -B $artifactblock -T $artifacttask)
+
+	sleep 2
+
+	echo "[$NAME] - Opening GDF and log files"
+	# Open GDF and log files
+	GDFBASENAME=$CNBITKDATA_ROOT"/"$(ccfg_cli -x $bcixml -N -B $miblock -T $mitask -a)".gdf"
+	LOGBASENAME=$CNBITKDATA_ROOT"/"$(ccfg_cli -x $bcixml -N -B $miblock -T $mitask -o)".log"
+	cl_rpc openxdf $GDFBASENAME $LOGBASENAME "cybathlon"
+
+	sleep 2
+
+	# Launch feedback mi_control
+	echo "[$NAME] - Launching mi_control feedback"
+	gnome-terminal -e $FEEDBACK_EXECUTABLE --title "Feedback"
+
+	sleep 2
+	
+	# Launch cybathlon controller
+	echo "[$NAME] - Starting Cybathlon controller"
+	gnome-terminal -e $CONTROLLER_EXECUTABLE --title "Controller"
+	
+	# Launch dynamic parameter GUI
+	echo "[$NAME] - Starting dynamic parameter GUI"
+	gnome-terminal -e $GUI_EXECUTABLE --title "Dynamic GUI"
+	
+	# Keep reading user input here until Q is pressed
+	while :
+	do
+	    read -t 1 -n 1 key
+	    if [[ $key = q ]]; then
+		break
+	    fi
+	done
+
+	# Close the GDF file
+	echo "[$NAME] - Closing GDF file"
+	cl_rpc closexdf
+
+	# Terminate MATLAB prcesses
+	echo "[$NAME] - Terminating BCI process"
+	cl_rpc terminate $BCIPID
+	echo "[$NAME] - Terminating EOG process"
+	cl_rpc terminate $EOGPID
+
+	# Shut down everything
+	echo "[$NAME] - Closing all terminals"
+        wmctrl -c "Dynamic GUI"
+        wmctrl -c "Controller"
+        wmctrl -c "Feedback"
+	
+	# Ask whether to re-run with same parameters
+	zenity --question --text="Do you want to run again with same parameters?" --ok-label="Yes" --cancel-label="No"
+	if [[ $? == 0 ]] ; then
+	    echo "[$NAME] - Running with the same taskset and commands"
+	else
+	    echo "Exiting"
+	    break
+	fi
+done
+#
+## Defaults
+#DEF_XML="/home/sperdikis/Desktop/AN14VE_cybathlon.xml"
+#DEF_NoAmp=2
+#
+## Ask whether to run with defaults for all parameters
+#zenity --question --text="Do you want to run with the default values for all parameters?" --ok-label="Yes" --cancel-label="No"
+#if [[ $? == 0 ]] ; then
+#    USE_DEFAULTS=1	
+#    echo "Running with default parameters"
+#else
+#    USE_DEFAULTS=0
+#    echo "Asking parameters with GUI"
+#fi
+#
+#if [[ $USE_DEFAULTS == 1 ]] ; then # Use default values
+#
+#    XML=$DEF_XML
+#    NoAmp=$DEF_NoAmp	
+#
+#else # Input parameters with GUI
+#
+#    # XML
+#    XML=$(zenity --file-selection --file-filter=*.xml --title "CnbiTk Cybathlon Launcher - XML Configuration")
+#    if [[ -z "$XML" ]] ; then
+#	exit 2
+#    fi
+#
+#    # Number of amps to use
+#    reply=$(zenity --list --title="CNBI Cybathlon" --text="Will you use EOG (2 synced amps)?" --radiolist --column="" --column="" TRUE "Yes, run with 2 gUSBamps" FALSE "No, run with single gUSBamp")
+#    if [[ -z "$reply" ]] ; then
+#	exit 2
+#    fi
+#    if [[ "$reply" =~ "Yes, run with 2 gUSBamps" ]]; then
+#        NoAmp=2
+#    else
+#        NoAmp=1
+#    fi
+#fi # End of zenity GUIs in case of non-default params
+#
+#
+#while true; do
+#
+#	#Kill existing loop instances and close their terminal windows
+#        wmctrl -c "Dynamic GUI"
+#        wmctrl -c "Controller"
+#        wmctrl -c "Feedback"
+#	cl_killloop
+#	cl_killloop
+#        wmctrl -c "CnbiTk Acquisition"
+#        wmctrl -c "CnbiTk Processing"
+#        wmctrl -c "CnbiTk Nameserver"
+#
+#	sleep 2
+#
+#	# Run the loop with 1 or 2 gUSBamps depending on the parameter
+#	if [ $NoAmp == 1 ]; then
+#	    echo "Running with single gUSBamp"
+#	    cl_runloopscope -d gtec
+#	elif [ $NoAmp == 2 ]; then
+#	    echo "Running with two gUSBamps"
+#	    gnome-terminal \
+#	    ---tab -e "bash -c 'cl_keepalive cl_nameserver'" --title "CnbiTk Nameserver" \
+#	    ---tab -e "bash -c 'sleep 1; cl_keepalive cl_processing'" --title "CnbiTk Processing" \
+#	    ---tab -e "bash -c 'sleep 2; cl_keepalive cl_acquisitionscope -d \"gtec|deviceid|any+any\"'" --title "CnbiTk Acquisition"
+#	else
+#	    echo "Illegal argument, exiting..."
+#	    exit 2
+#	fi
+#
+#	sleep 5
+#	# Upload all parameters to nameserver and start BCI processing
+#	echo "Uploading XML parameters to nameserver"
+#	cl_init -x $XML -lN -B mi -T mi_bhbf
+#	echo "Starting BCI process"
+#	BCIPID=$(cl_init -x $XML -scN -B mi -T mi_bhbf)
+#	
+#	sleep 2
+#	# Launch also the EOG processing
+#	echo "Starting EOG artifact detection process"
+#	cl_init -x $XML -lN -B artifact -T artifact_onoff
+#	EOGPID=$(cl_init -x $XML -scN -B artifact -T artifact_onoff)
+#
+#	sleep 2
+#
+#	echo "Opening GDF and log files"
+#	# Open GDF and log files
+#	GDFBASENAME=$(ccfg_cli -x $XML -N -B mi -T mi_bhbf -a)".gdf"
+#	LOGBASENAME=$(ccfg_cli -x $XML -N -B mi -T mi_bhbf -o)".log"
+#	cl_rpc openxdf $GDFBASENAME $LOGBASENAME "cybathlon"
+#
+#	sleep 2
+#
+#	# Launch feedback mi_control
+#	echo "Launching mi_control feedback"
+#	gnome-terminal -e "mi_control" --title "Feedback"
+#
+#	sleep 2
+#	
+#	# Launch cybathlon controller
+#	echo "Starting Cybathlon controller"
+#	gnome-terminal -e "mi_cybathlon_controller" --title "Controller"
+#	
+#	# Launch dynamic parameter GUI
+#	echo "Starting dynamic parameter GUI"
+#	gnome-terminal -e "cybathlon_gui" --title "Dynamic GUI"
+#	
+#	# Keep reading user input here until Q is pressed
+#	while :
+#	do
+#	    read -t 1 -n 1 key
+#	    if [[ $key = q ]]; then
+#		break
+#	    fi
+#	done
+#
+#	# Close the GDF file
+#	echo "Closing GDF file"
+#	cl_rpc closexdf
+#
+#	# Terminate MATLAB prcesses
+#	echo "Terminating BCI process"
+#	cl_rpc terminate $BCIPID
+#	echo "Terminating EOG process"
+#	cl_rpc terminate $EOGPID
+#
+#	# Shut down everything
+#	echo "Closing all terminals"
+#        wmctrl -c "Dynamic GUI"
+#        wmctrl -c "Controller"
+#        wmctrl -c "Feedback"
+#	cl_killloop
+#	cl_killloop
+#        wmctrl -c "CnbiTk Acquisition"
+#        wmctrl -c "CnbiTk Processing"
+#        wmctrl -c "CnbiTk Nameserver"
+#	
+#	# Ask whether to re-run with same parameters
+#	zenity --question --text="Do you want to run again with same parameters?" --ok-label="Yes" --cancel-label="No"
+#	if [[ $? == 0 ]] ; then
+#	    echo "Running with the same taskset and commands"
+#	else
+#	    echo "Exiting"
+#	    break
+#	fi
+#done

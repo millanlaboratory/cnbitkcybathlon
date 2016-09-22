@@ -8,4 +8,6 @@ protocolmat_DATA = ndf_cybathlon_eog.m \
 protocolxmldir = ${HOME}/.cnbitk/$(PACKAGE_NAME)/xml
 protocolxml_DATA = cybathlon_template.xml
 
+bin_SCRIPTS = cp_cybathlon_launcher \
+	      cp_cybathlon_launcher_all
 
