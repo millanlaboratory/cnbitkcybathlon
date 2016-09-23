@@ -73,7 +73,7 @@
 			<integration>0.96</integration>
 		</mi>
 		<artifact description="Online Artifact Detection" protocol="">
-			<taskset ttype="artifact_onoff" ctype="artifact" classifier="kmi0">
+			<taskset ttype="artifact_onoff" ctype="artifact" classifier="kmi1">
 				<threshold>
 					<artifact_on>150.0</artifact_on>
 					<artifact_off>0.0</artifact_off>
@@ -92,6 +92,10 @@
 			<name>mi</name>
 			<filename>CLASSIFIER.mat</filename>
 		</kmi0>
+		<kmi1>
+			<name>artifact</name>
+			<filename>CLASSIFIER.mat</filename>
+		</kmi1>
 	</classifier>
 
 
