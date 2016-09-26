@@ -68,7 +68,8 @@ try
     ccfg_root(config); % Go to root
     cfg.gdfevent.on = ccfg_quickgdf(config,'tasks/artifact_on/gdfevent/');
     ccfg_root(config); % Go to root
-    cfg.gdfevent.off = ccfg_quickgdf(config,'tasks/artifact_off/gdfevent/');
+    % Note by L.Tonin  <luca.tonin@epfl.ch> on 26/09/16 12:01:08
+    %cfg.gdfevent.off = ccfg_quickgdf(config,'tasks/artifact_off/gdfevent/');
     
     %cl_updatelog(loop.cl, sprintf('EOGth=%f', user.eog.EOGth));
 
@@ -150,12 +151,16 @@ try
                     idmessage_setevent(idm, cfg.gdfevent.on);
                     tid_setmessage(ID, ids, ndf.frame.index);
                 end
-                
-                if(isequal(user.decbuffer,[1 0]))
-                    % Artifact offset
-                    idmessage_setevent(idm, cfg.gdfevent.off);
-                    tid_setmessage(ID, ids, ndf.frame.index);
-                end
+               
+			
+		% Note by L.Tonin  <luca.tonin@epfl.ch> on 26/09/16 12:00:12	
+		% Removed the offset event (it is sent by 
+		% mi_cybathlon_controller)
+                %if(isequal(user.decbuffer,[1 0]))
+                %    % Artifact offset
+                %    idmessage_setevent(idm, cfg.gdfevent.off);
+                %    tid_setmessage(ID, ids, ndf.frame.index);
+                %end
               
             else
                 tid_attach(ID, cfg.id);
