@@ -130,7 +130,7 @@ try
             % Apply Butterworth bandpass in [1 10] Hz
             user.eog.EOGh = filter(user.butter.eog.b,user.butter.eog.a,user.eog.EOGh);
             user.eog.EOGv = filter(user.butter.eog.b,user.butter.eog.a,user.eog.EOGv);
-            user.eog.EOGblink = filter(user.butter.eog.b,user.butter.eog.a,user.eog.EOGblink)
+            user.eog.EOGblink = filter(user.butter.eog.b,user.butter.eog.a,user.eog.EOGblink);
 
             % Rectify 
             user.eog.EOGh = abs(user.eog.EOGh);
