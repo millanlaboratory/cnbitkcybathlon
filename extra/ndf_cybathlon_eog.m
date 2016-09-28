@@ -125,7 +125,7 @@ try
             user.eog.EOGh = buffer.eog(:,2) - ...
                 (buffer.eog(:,1) + buffer.eog(:,3))/2;
             %% Monopolar for blinks
-            user.eog.EOGblink = mean(buffer.eog(:,1),2);
+            user.eog.EOGblink = buffer.eog;
 
             % Apply Butterworth bandpass in [1 10] Hz
             user.eog.EOGh = filter(user.butter.eog.b,user.butter.eog.a,user.eog.EOGh);
@@ -135,7 +135,7 @@ try
             % Rectify 
             user.eog.EOGh = abs(user.eog.EOGh);
             user.eog.EOGv = abs(user.eog.EOGv);
-            user.eog.EOGblink = abs(user.eog.EOGblink);
+            user.eog.EOGblink = mean(abs(user.eog.EOGblink,2));
 
             % Thresholding and decision 
             if ( (sum(user.eog.EOGh > user.eog.th) > 0) || (sum(user.eog.EOGv > user.eog.th) > 0) || (sum(user.eog.EOGblink > user.eog.th) > 0) )
