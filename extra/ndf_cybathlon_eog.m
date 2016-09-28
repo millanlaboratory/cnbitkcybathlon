@@ -124,17 +124,21 @@ try
             user.eog.EOGv = buffer.eog(:,1)-buffer.eog(:,2);
             user.eog.EOGh = buffer.eog(:,2) - ...
                 (buffer.eog(:,1) + buffer.eog(:,3))/2;
+            %% Monopolar for blinks
+            user.eog.EOGblink = mean(buffer.eog(:,1),2);
 
             % Apply Butterworth bandpass in [1 10] Hz
             user.eog.EOGh = filter(user.butter.eog.b,user.butter.eog.a,user.eog.EOGh);
             user.eog.EOGv = filter(user.butter.eog.b,user.butter.eog.a,user.eog.EOGv);
+            user.eog.EOGblink = filter(user.butter.eog.b,user.butter.eog.a,user.eog.EOGblink)
 
             % Rectify 
             user.eog.EOGh = abs(user.eog.EOGh);
             user.eog.EOGv = abs(user.eog.EOGv);
+            user.eog.EOGblink = abs(user.eog.EOGblink);
 
             % Thresholding and decision 
-            if ( (sum(user.eog.EOGh > user.eog.th) > 0) || (sum(user.eog.EOGv > user.eog.th) > 0) )
+            if ( (sum(user.eog.EOGh > user.eog.th) > 0) || (sum(user.eog.EOGv > user.eog.th) > 0) || (sum(user.eog.EOGblink > user.eog.th) > 0) )
                 user.dec.eog = 1;
             else
                 user.dec.eog = 0;
