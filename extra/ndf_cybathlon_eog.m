@@ -135,7 +135,7 @@ try
             % Rectify 
             user.eog.EOGh = abs(user.eog.EOGh);
             user.eog.EOGv = abs(user.eog.EOGv);
-            user.eog.EOGblink = mean(abs(user.eog.EOGblink,2));
+            user.eog.EOGblink = mean(abs(user.eog.EOGblink),2);
 
             % Thresholding and decision 
             if ( (sum(user.eog.EOGh > user.eog.th) > 0) || (sum(user.eog.EOGv > user.eog.th) > 0) || (sum(user.eog.EOGblink > user.eog.th) > 0) )
