@@ -112,7 +112,8 @@ int main (int argc, char** argv) {
 	bool 		cmdflg = false;
 	cybevt_t* 	evtrcv_c = NULL;
 	cybevt_t* 	evtrcv_p = NULL;
-	cybevt_t* 	evtdel   = NULL;
+	cybevt_t* 	evtdel_c = NULL;
+	cybevt_t* 	evtdel_p = NULL;
 	CcTimeValue 	cmdtic;
 	CcTimeValue 	arttic;
 	float 		cmdtime;
@@ -219,7 +220,8 @@ int main (int argc, char** argv) {
 	/********************************/
 	evtrcv_c = new cybevt_t;
 	evtrcv_p = new cybevt_t;
-	evtdel   = new cybevt_t;
+	evtdel_c = new cybevt_t;
+	evtdel_p = new cybevt_t;
 	CcTime::Tic(&cmdtic);
 	CcTime::Sleep(cybcfg.timerevert);
 
@@ -250,17 +252,20 @@ int main (int argc, char** argv) {
 			}
 
 			// Copy the current command to the delivery command
-			evtdel = new cybevt_t(*evtrcv_c);
+			evtdel_c = new cybevt_t(*evtrcv_c);
 			
 			// Implement third command (reverse)
 			// If two different commands are sent in the required
-			// time, then the third command is delivered. The third
-			// command is identified by the task "mi_reverse"
-			if((cmdtime <= cybcfg.timerevert) && (evtrcv_c->gdfevent != evtrcv_p->gdfevent)) {
+			// time and the previous command delivered was not 
+			// "mi_reverse", then the third command is delivered. 
+			// The third command is identified by the task "mi_reverse"
+			if((cmdtime <= cybcfg.timerevert) && 
+			   (evtrcv_c->gdfevent != evtrcv_p->gdfevent) &&
+			   (evtdel_p->key.compare("mi_reverse") != 0)) {
 
 				for(auto it=cybcfg.events.begin(); it!=cybcfg.events.end(); it++) {
 					if(it->key.compare("mi_reverse") == 0) {
-						evtdel = new cybevt_t(*it);
+						evtdel_c = new cybevt_t(*it);
 						break;
 					}
 				}
@@ -290,16 +295,18 @@ int main (int argc, char** argv) {
 			// Sending the commands 3 times as suggested by
 			// organizers
 			for (auto i=0; i<cybcfg.gameaddress.size(); i++) {
-				CybGames[i].Send((const void*)(&evtdel->command),sizeof(unsigned int));
+				CybGames[i].Send((const void*)(&evtdel_c->command),sizeof(unsigned int));
 				CcTime::Sleep(25);
 			}
 		
 			CcLogInfoS("Player command: " <<
-				   evtdel->name << "|" << evtdel->command << 
-				   " (" << evtdel->key << "|" << evtdel->gdfevent << ")");
+				   evtdel_c->name << "|" << evtdel_c->command << 
+				   " (" << evtdel_c->key << "|" << evtdel_c->gdfevent << ")");
 		
 			// Command has been sent. Switch command flag to false
+			// and save it as previous delivered command
 			cmdflg  = false;
+			evtdel_p = new cybevt_t(*evtdel_c);
 		}
 
 		// Update artifact timeout parameter
@@ -332,7 +339,8 @@ shutdown:
 	
 	delete evtrcv_p;
 	delete evtrcv_c;
-	delete evtdel;
+	delete evtdel_c;
+	delete evtdel_p;
 
 	id.Detach();
 	CcCore::Exit(0);
